@@ -1,0 +1,2207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EL ESPACIO COMO RELATO: Estrategias del diseño de videojuegos como herramientas de composición arquitectónica narrativa</title>
+    <!-- Google Fonts: Montserrat (Headers) & Inter (Body) & Press Start 2P -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Base Colors (HSL) */
+            --bg-base: hsl(224, 32%, 8%);
+            --panel-bg: rgba(20, 27, 45, 0.7);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --text-primary: hsl(210, 40%, 98%);
+            --text-secondary: hsl(215, 20%, 75%);
+            --text-muted: hsl(215, 15%, 55%);
+            
+            /* Category Accent Colors */
+            --color-implicita: #d97706; /* Amber */
+            --color-orient: #10b981;    /* Emerald */
+            --color-narr: #6366f1;      /* Indigo */
+            --color-emoc: #f97316;      /* Orange */
+            --color-ritmo: #eab308;     /* Yellow */
+            --color-sig: #3b82f6;       /* Blue */
+            /* UI Accents */
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.35);
+            --border-radius-lg: 16px;
+            --border-radius-md: 10px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+            position: relative;
+        }
+        /* Ambient Glow Backdrop */
+        .ambient-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70vw;
+            height: 70vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.04) 0%, rgba(9, 13, 22, 0) 70%);
+            pointer-events: none;
+            z-index: 1;
+            transition: background 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Layout Structure */
+        .sidebar {
+            width: 280px;
+            background: rgba(13, 18, 30, 0.85);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--panel-border);
+            padding: 2.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+        .main-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            position: relative;
+            z-index: 10;
+            width: calc(100% - 280px);
+        }
+        /* Branding */
+        .brand {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .brand h1 {
+            font-family: 'Press Start 2P', 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+        .brand p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+        }
+        /* Navigation Menu */
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            list-style: none;
+        }
+        .nav-item button {
+            width: 100%;
+            background: none;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.85rem 1rem;
+            border-radius: var(--border-radius-md);
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: var(--transition);
+        }
+        .nav-item button:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-primary);
+            padding-left: 1.25rem;
+        }
+        .nav-item.active button {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            border-color: rgba(56, 189, 248, 0.2);
+            font-weight: 600;
+            box-shadow: 0 4px 20px rgba(56, 189, 248, 0.05);
+        }
+        .nav-item button svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            transition: var(--transition);
+        }
+        /* Info Card Sidebar */
+        .sidebar-footer {
+            margin-top: auto;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--border-radius-md);
+            padding: 1rem;
+        }
+        .sidebar-footer h4 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+            margin-bottom: 0.4rem;
+        }
+        .sidebar-footer p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        /* Content Sections */
+        .content-header {
+            padding: 2.5rem 3rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--panel-border);
+            background: rgba(9, 13, 22, 0.2);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .header-title h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .header-title p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        .content-body {
+            padding: 3rem;
+            flex-grow: 1;
+            display: none;
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .content-body.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Cards & Containers (Glassmorphism) */
+        .glass-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        /* --- HOME TAB SPECIFICS --- */
+        .hero-banner {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .wip-tag {
+            align-self: flex-start;
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            color: #f59e0b;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.4rem 1rem;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.1);
+        }
+        .wip-tag::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #f59e0b;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .hero-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 900;
+            line-height: 1.15;
+            color: #fff;
+        }
+        .hero-title span {
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+        }
+        .hero-desc {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            max-width: 800px;
+        }
+        /* Hub Shortcut Cards */
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .hub-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .hub-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .hub-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(56, 189, 248, 0.3);
+            background: rgba(56, 189, 248, 0.03);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .hub-card:hover::before {
+            opacity: 1;
+        }
+        .hub-card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            border: 1px solid var(--panel-border);
+            transition: var(--transition);
+        }
+        .hub-card:hover .hub-card-icon {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        .hub-card h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .hub-card p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .hub-card-footer {
+            margin-top: auto;
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        /* --- CATALOG TAB SPECIFICS --- */
+        .catalog-container {
+            display: flex;
+            gap: 2rem;
+        }
+        .catalog-main {
+            flex-grow: 1;
+            width: 60%;
+        }
+        .catalog-drawer {
+            width: 40%;
+            flex-shrink: 0;
+            position: sticky;
+            top: 100px;
+            align-self: flex-start;
+            max-height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+        .search-filter-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+        .search-box input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--border-radius-md);
+            padding: 0.8rem 1rem 0.8rem 2.8rem;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+        }
+        .search-box svg {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            stroke: var(--text-muted);
+            fill: none;
+            stroke-width: 2;
+        }
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--panel-border);
+            border-radius: 99px;
+            padding: 0.45rem 1.1rem;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border-color: rgba(255,255,255,0.2);
+        }
+        .filter-btn.active.all { background: var(--panel-border); color: #fff; }
+        .filter-btn.active.implicita { background: rgba(217, 119, 6, 0.15); color: #fbbf24; border-color: rgba(217, 119, 6, 0.4); }
+        .filter-btn.active.orient { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.4); }
+        .filter-btn.active.narr { background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.4); }
+        .filter-btn.active.emoc { background: rgba(249, 115, 22, 0.15); color: #fb923c; border-color: rgba(249, 115, 22, 0.4); }
+        .dot-badge {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        /* Catalog Table */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--panel-border);
+            background: rgba(13, 18, 30, 0.4);
+        }
+        .catalog-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+        .catalog-table th {
+            padding: 1rem 1.25rem;
+            background: rgba(255, 255, 255, 0.02);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--panel-border);
+        }
+        .catalog-table tr {
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .catalog-table tr:last-child {
+            border-bottom: none;
+        }
+        .catalog-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .catalog-table tr.selected {
+            background: rgba(56, 189, 248, 0.06);
+            border-left: 3px solid var(--accent);
+        }
+        .catalog-table td {
+            padding: 1rem 1.25rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        /* Badges */
+        .cat-badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            white-space: nowrap;
+        }
+        .cat-badge.implicita { background: rgba(217, 119, 6, 0.12); color: #fbbf24; }
+        .cat-badge.orient { background: rgba(16, 185, 129, 0.12); color: #34d399; }
+        .cat-badge.narr { background: rgba(99, 102, 241, 0.12); color: #818cf8; }
+        .cat-badge.emoc { background: rgba(249, 115, 22, 0.12); color: #fb923c; }
+        .game-pill {
+            display: inline-block;
+            font-size: 0.7rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--panel-border);
+            color: var(--text-secondary);
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            margin: 0.1rem;
+            font-weight: 500;
+        }
+        /* Detail Card Layout */
+        .detail-placeholder {
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            gap: 1rem;
+            border: 1px dashed var(--panel-border);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            text-align: center;
+        }
+        .detail-placeholder svg {
+            width: 48px;
+            height: 48px;
+            stroke: var(--text-muted);
+            opacity: 0.5;
+        }
+        .detail-header {
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .detail-header h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+        .detail-section-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .detail-section p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .detail-footer-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent) 0%, #0284c7 100%);
+            border: none;
+            color: #000;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            padding: 0.85rem;
+            border-radius: var(--border-radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2);
+        }
+        .detail-footer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+            filter: brightness(1.1);
+        }
+        /* --- BEAT CHART TAB SPECIFICS --- */
+        .chart-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        /* SVG Pacing Chart */
+        .svg-chart-container {
+            background: rgba(13, 18, 30, 0.4);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .svg-chart-container h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+        }
+        .svg-canvas {
+            width: 100%;
+            height: 200px;
+            overflow: visible;
+        }
+        .chart-grid-line {
+            stroke: rgba(255, 255, 255, 0.03);
+            stroke-dasharray: 4 4;
+            stroke-width: 1px;
+        }
+        .chart-main-line {
+            fill: none;
+            stroke: url(#line-gradient);
+            stroke-width: 3px;
+            stroke-linecap: round;
+            filter: drop-shadow(0px 0px 8px rgba(56, 189, 248, 0.3));
+        }
+        .chart-fill {
+            fill: url(#area-gradient);
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        .chart-node {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .chart-node circle.outer {
+            fill: var(--node-color, #fff);
+            opacity: 0.25;
+            transition: var(--transition);
+        }
+        .chart-node circle.inner {
+            fill: var(--node-color, #fff);
+            stroke: var(--bg-base);
+            stroke-width: 2px;
+            transition: var(--transition);
+        }
+        .chart-node:hover circle.outer, .chart-node.active circle.outer {
+            r: 12;
+            opacity: 0.45;
+        }
+        .chart-node:hover circle.inner, .chart-node.active circle.inner {
+            r: 7;
+        }
+        .chart-node-label {
+            font-size: 9px;
+            fill: var(--text-muted);
+            font-weight: 500;
+            text-anchor: middle;
+        }
+        .chart-node.active .chart-node-label {
+            fill: #fff;
+            font-weight: 700;
+        }
+        /* Beats Timeline Navigation */
+        .timeline-nav {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .timeline-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--border-radius-md);
+            padding: 0.75rem 1.25rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .timeline-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+        }
+        .timeline-btn.active {
+            background: var(--node-bg, rgba(56, 189, 248, 0.15));
+            border-color: var(--node-color, var(--accent));
+            color: #fff;
+            font-weight: 600;
+        }
+        .timeline-btn-num {
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+        }
+        /* Beat Cards Details */
+        .beat-detail-card {
+            border-left: 4px solid var(--beat-border, var(--accent));
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            transition: var(--transition);
+        }
+        .beat-info-left {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .beat-info-right {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        .beat-quote-box {
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 2px solid var(--text-muted);
+            padding: 1rem 1.25rem;
+            border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+            font-style: italic;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .intensity-pill {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--panel-border);
+            align-self: flex-start;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .intensity-pill span.bar {
+            display: inline-block;
+            height: 6px;
+            width: 40px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+        .intensity-pill span.bar-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: var(--beat-border, var(--accent));
+        }
+        .beat-title-area {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .beat-title-area h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .beat-title-area p {
+            font-size: 0.9rem;
+            color: var(--accent);
+            font-weight: 500;
+        }
+        /* --- NEUROARCHITECTURE TAB SPECIFICS --- */
+        .color-grid-container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2.5rem;
+        }
+        .color-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .color-orbs-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+        }
+        .color-orb-btn {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.08);
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+            position: relative;
+            background: var(--orb-color);
+        }
+        .color-orb-btn:hover {
+            transform: scale(1.15) translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            z-index: 2;
+        }
+        .color-orb-btn.active {
+            transform: scale(1.2);
+            border-color: #fff;
+            box-shadow: 0 0 25px var(--orb-color);
+            z-index: 3;
+        }
+        .color-orb-btn::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            border: 1px solid var(--panel-border);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+        .color-orb-btn:hover::after {
+            opacity: 1;
+        }
+        /* Color Info Card Layout */
+        .color-display-panel {
+            min-height: 480px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            position: relative;
+            overflow: hidden;
+            border-top: 5px solid var(--selected-color-hex, var(--accent));
+        }
+        .color-display-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 1.5rem;
+        }
+        .color-swatch-indicator {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: var(--selected-color-hex, #fff);
+            box-shadow: 0 0 25px var(--selected-color-hex, rgba(255,255,255,0.2));
+            transition: var(--transition);
+        }
+        .color-name-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            color: #fff;
+            transition: var(--transition);
+        }
+        .color-stat-bubble {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--panel-border);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: inline-block;
+            margin-top: 0.25rem;
+        }
+        .color-section-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        .color-strategy-box {
+            grid-column: span 2;
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 4px solid var(--selected-color-hex, #fff);
+            padding: 1.5rem;
+            border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+            margin-top: 0.5rem;
+        }
+        .color-strategy-box h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+        .color-strategy-box p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        /* --- METHODOLOGICAL CALLOUT CARD (VR + NEURO) --- */
+        .methodology-card {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.05) 0%, rgba(99, 102, 241, 0.02) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            border-radius: var(--border-radius-lg);
+            padding: 1.75rem;
+            display: flex;
+            gap: 1.25rem;
+            margin-top: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .methodology-card::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%);
+            z-index: 1;
+            pointer-events: none;
+        }
+        .methodology-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            z-index: 2;
+        }
+        .methodology-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+        .methodology-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 2;
+        }
+        .methodology-content h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .methodology-content p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .methodology-content strong {
+            color: var(--accent);
+        }
+        /* Interactive Tags */
+        .tag-row {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+        .sub-tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.25rem 0.6rem;
+            border-radius: 99px;
+        }
+        /* Scrollbar styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.08);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        /* Mobile adaptation (hamburger + sidebar toggling) */
+        .mobile-header {
+            display: none;
+            background: rgba(13, 18, 30, 0.95);
+            border-bottom: 1px solid var(--panel-border);
+            padding: 1rem 1.5rem;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 150;
+        }
+        .hamburger-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hamburger-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+        @media (max-width: 1024px) {
+            .catalog-container {
+                flex-direction: column;
+            }
+            .catalog-main {
+                width: 100%;
+            }
+            .catalog-drawer {
+                width: 100%;
+                position: static;
+                max-height: none;
+            }
+            .color-grid-container {
+                grid-template-columns: 1fr;
+            }
+            .beat-detail-card {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .mobile-header {
+                display: flex;
+            }
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                top: 0;
+                bottom: 0;
+                height: 100vh;
+                transition: var(--transition);
+                box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+            }
+            .sidebar.mobile-open {
+                left: 0;
+            }
+            .main-wrapper {
+                width: 100%;
+            }
+            .content-header {
+                padding: 1.5rem 1.5rem 1rem;
+            }
+            .content-body {
+                padding: 1.5rem;
+            }
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            .color-section-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .color-strategy-box {
+                grid-column: span 1;
+            }
+        }
+        
+        /* Hero Carousel */
+        .hero-carousel {
+            position: relative;
+            width: 100%;
+            margin: 0 auto 2rem auto;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(10, 15, 26, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            aspect-ratio: 16/9;
+        }
+        .carousel-slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+        .carousel-slide.active {
+            display: block;
+        }
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .fade {
+            animation-name: fade;
+            animation-duration: 0.5s;
+        }
+        @keyframes fade {
+            from {opacity: .4} 
+            to {opacity: 1}
+        }
+        .carousel-btn {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            padding: 16px;
+            margin-top: -22px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            transition: 0.3s ease;
+            border-radius: 0 3px 3px 0;
+            user-select: none;
+            background: rgba(0,0,0,0.3);
+            border: none;
+        }
+        .next-btn {
+            right: 0;
+            border-radius: 3px 0 0 3px;
+        }
+        .carousel-btn:hover {
+            background-color: rgba(0,0,0,0.8);
+        }
+        .carousel-dots {
+            text-align: center;
+            position: absolute;
+            bottom: 15px;
+            width: 100%;
+        }
+        .dot {
+            cursor: pointer;
+            height: 10px;
+            width: 10px;
+            margin: 0 4px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+        .dot.active, .dot:hover {
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Ambient Glow Background -->
+    <div class="ambient-glow" id="ambientLight"></div>
+    <!-- Mobile Top Navigation -->
+    <header class="mobile-header">
+        <div class="brand">
+            <h1 style="font-size: 0.7rem; line-height: 1.4;">EL ESPACIO COMO RELATO</h1>
+        </div>
+        <button class="hamburger-btn" onclick="toggleMobileSidebar()" aria-label="Abrir menú">
+            <svg viewBox="0 0 24 24">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+    </header>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="appSidebar">
+        <div class="brand">
+            <h1 style="font-size: 0.8rem; line-height: 1.4;">EL ESPACIO COMO RELATO</h1>
+            <p style="font-size: 0.6rem; margin-top: 0.5rem; line-height: 1.4;">Estrategias del diseño de videojuegos como herramientas de composición arquitectónica narrativa.</p>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item active" id="nav-inicio">
+                <button onclick="switchTab('inicio')">
+                    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    Inicio
+                </button>
+            </li>
+            <li class="nav-item" id="nav-catalogo">
+                <button onclick="switchTab('catalogo')">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Estrategias de diseño de videojuegos
+                </button>
+            </li>
+            <li class="nav-item" id="nav-beat-chart">
+                <button onclick="switchTab('beat-chart')" style="font-size: 0.8rem; padding-left: 1.5rem;">
+                    <svg viewBox="0 0 24 24" style="width: 14px; height: 14px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    Beat chart: alegoría de la caverna de platón
+                </button>
+            </li>
+            <li class="nav-item" id="nav-color">
+                <button onclick="switchTab('color')" style="font-size: 0.8rem; padding-left: 1.5rem;">
+                    <svg viewBox="0 0 24 24" style="width: 14px; height: 14px;"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"></path><path d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z"></path></svg>
+                    Paleta cromatica: neuroarquitectura del color
+                </button>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <h4>Universidad Simón Bolívar</h4>
+            <p>Arquitectura<br>Tesis de Grado<br>Valeria Rodriguez</p>
+        </div>
+    </aside>
+    <!-- Main Content Container -->
+    <main class="main-wrapper">
+        
+        <!-- Header -->
+        <header class="content-header">
+            <div class="header-title">
+                <h2 id="current-tab-title" style="font-family: 'Press Start 2P', system-ui; font-size: 1.1rem; line-height: 1.6; padding-bottom: 0.2rem;">Portal al Espacio Como Relato</h2>
+                <p id="current-tab-subtitle">Un catálogo de estrategias para guiar, emocionar y narrar una historia.</p>
+            </div>
+        </header>
+        <!-- TAB: INICIO -->
+        <section class="content-body active" id="tab-content-inicio">
+            <div class="hero-banner">
+                <!-- Image Carousel -->
+                <div class="hero-carousel" id="heroCarousel">
+                    <div class="carousel-slide fade active">
+                        <img src="Image1.png" alt="Imagen 1">
+                    </div>
+                    <div class="carousel-slide fade">
+                        <img src="Image4.png" alt="Imagen 2">
+                    </div>
+                    <div class="carousel-slide fade">
+                        <img src="Image7.png" alt="Imagen 3">
+                    </div>
+                    <div class="carousel-slide fade">
+                        <img src="Image12.png" alt="Imagen 4">
+                    </div>
+                    <div class="carousel-slide fade">
+                        <img src="Image16.png" alt="Imagen 5">
+                    </div>
+                    <div class="carousel-slide fade">
+                        <img src="Image19.png" alt="Imagen 6">
+                    </div>
+                    <div class="carousel-slide fade">
+                        <img src="Image23.png" alt="Imagen 7">
+                    </div>
+                    <div class="carousel-slide fade">
+                        <img src="Image26.png" alt="Imagen 8">
+                    </div>
+                    <div class="carousel-slide fade">
+                        <img src="Image34.png" alt="Imagen 9">
+                    </div>
+                    <div class="carousel-slide fade">
+                        <img src="Image37.png" alt="Imagen 10">
+                    </div>
+                    <div class="carousel-slide fade">
+                        <img src="Image39.png" alt="Imagen 11">
+                    </div>
+                    <div class="carousel-slide fade">
+                        <img src="Image41.png" alt="Imagen 12">
+                    </div>
+                    <div class="carousel-slide fade">
+                        <img src="Image48.png" alt="Imagen 13">
+                    </div>
+                    <div class="carousel-slide fade">
+                        <img src="Image60.png" alt="Imagen 14">
+                    </div>
+                    <button class="carousel-btn prev-btn" onclick="moveSlide(-1)">&#10094;</button>
+                    <button class="carousel-btn next-btn" onclick="moveSlide(1)">&#10095;</button>
+                    <div class="carousel-dots">
+                        <span class="dot active" onclick="currentSlide(1)"></span>
+                        <span class="dot" onclick="currentSlide(2)"></span>
+                        <span class="dot" onclick="currentSlide(3)"></span>
+                        <span class="dot" onclick="currentSlide(4)"></span>
+                        <span class="dot" onclick="currentSlide(5)"></span>
+                        <span class="dot" onclick="currentSlide(6)"></span>
+                        <span class="dot" onclick="currentSlide(7)"></span>
+                        <span class="dot" onclick="currentSlide(8)"></span>
+                        <span class="dot" onclick="currentSlide(9)"></span>
+                        <span class="dot" onclick="currentSlide(10)"></span>
+                        <span class="dot" onclick="currentSlide(11)"></span>
+                        <span class="dot" onclick="currentSlide(12)"></span>
+                        <span class="dot" onclick="currentSlide(13)"></span>
+                        <span class="dot" onclick="currentSlide(14)"></span>
+                    </div>
+                </div>
+                <p class="hero-desc">
+                    Las estrategias del diseño de niveles constituyen un conjunto de herramientas transferible al campo de la arquitectura, capaz de intensificar la dimensión narrativa e inmersiva de un recorrido espacial.
+                </p>
+            </div>
+            <div class="hub-grid">
+                <div class="hub-card" onclick="switchTab('catalogo')">
+                    <div class="hub-card-icon">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    </div>
+                    <h3>Estrategias de Diseño de Videojuegos</h3>
+                    <p>Catálogo interactivo con 17 criterios de composición espacial (Líneas guía, compresión/expansión) diseñados para orientar al jugador orgánicamente.</p>
+                    <span class="hub-card-footer">Ver catálogo &rarr;</span>
+                </div>
+                <div class="hub-card" onclick="switchTab('beat-chart')">
+                    <div class="hub-card-icon">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    </div>
+                    <h3>Caverna de Platón: Beat Chart</h3>
+                    <p>Mapeo dramático y emocional del recorrido. 7 fases que traducen la alegoría filosófica a dinámicas de espacio y picos de tensión.</p>
+                    <span class="hub-card-footer">Ver beat chart &rarr;</span>
+                </div>
+                <div class="hub-card" onclick="switchTab('color')">
+                    <div class="hub-card-icon">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path><path d="M2 12h20"></path></svg>
+                    </div>
+                    <h3>Neuroarquitectura del Color</h3>
+                    <p>Respuestas biométricas y neurobiológicas del color basadas en 128 años de investigación científica empírica aplicadas a entornos virtuales.</p>
+                    <span class="hub-card-footer">Ver neuroarquitectura &rarr;</span>
+                </div>
+            </div>
+        </section>
+        <!-- TAB: CATALOGO -->
+        <section class="content-body" id="tab-content-catalogo">
+            <div class="catalog-container">
+                <!-- Main Catalog Table and Filter Column -->
+                <div class="catalog-main">
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <input type="text" id="catalog-search" placeholder="Buscar estrategia, juego o referencia teórica..." oninput="handleSearch()">
+                            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </div>
+                        
+                        <div class="filter-buttons">
+                            <button class="filter-btn active all" onclick="filterCatalog('all', this)">Todos (<span id="count-all">0</span>)</button>
+                            <button class="filter-btn implicita" onclick="filterCatalog('implicita', this)">
+                                <span class="dot-badge" style="background:var(--color-implicita)"></span>Implícitas (<span id="count-implicita">0</span>)
+                            </button>
+                            <button class="filter-btn orient" onclick="filterCatalog('orient', this)">
+                                <span class="dot-badge" style="background:var(--color-orient)"></span>Orientación (<span id="count-orient">0</span>)
+                            </button>
+                            <button class="filter-btn narr" onclick="filterCatalog('narr', this)">
+                                <span class="dot-badge" style="background:var(--color-narr)"></span>Narrativa (<span id="count-narr">0</span>)
+                            </button>
+                            <button class="filter-btn emoc" onclick="filterCatalog('emoc', this)">
+                                <span class="dot-badge" style="background:var(--color-emoc)"></span>Emoción (<span id="count-emoc">0</span>)
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive glass-panel" style="padding:0;">
+                        <table class="catalog-table">
+                            <thead>
+                                <tr>
+                                    <th>Criterio</th>
+                                    <th>Categoría</th>
+                                    <th>Sustento / Fuente</th>
+                                    <th>Ejemplos / Juegos</th>
+                                </tr>
+                            </thead>
+                            <tbody id="catalog-table-body">
+                                <!-- Generated Dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Sticky Detail Panel -->
+                <aside class="catalog-drawer glass-panel" id="catalog-detail-panel">
+                    <div class="detail-placeholder" id="catalog-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="9"></line><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="11" y2="17"></line></svg>
+                        <p>Selecciona una estrategia del catálogo para visualizar su análisis detallado y aplicación espacial.</p>
+                    </div>
+                    <div id="catalog-detail-content" style="display:none;">
+                        <!-- Generated Dynamically -->
+                    </div>
+                </aside>
+            </div>
+        </section>
+        <!-- TAB: BEAT CHART -->
+        <section class="content-body" id="tab-content-beat-chart">
+            <div class="chart-layout">
+                <!-- SVG Pacing Chart -->
+                <div class="svg-chart-container glass-panel">
+                    <h3>Curva de Tensión Emocional y Pacing (1 - 6)</h3>
+                    <svg viewBox="0 0 800 220" class="svg-canvas" id="beatSvg">
+                        <defs>
+                            <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#888780" />
+                                <stop offset="15%" stop-color="#D85A30" />
+                                <stop offset="30%" stop-color="#BA7517" />
+                                <stop offset="50%" stop-color="#534AB7" />
+                                <stop offset="65%" stop-color="#EF9F27" />
+                                <stop offset="85%" stop-color="#1D9E75" />
+                                <stop offset="100%" stop-color="#AFA9EC" />
+                            </linearGradient>
+                            <linearGradient id="area-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.6" />
+                                <stop offset="100%" stop-color="var(--bg-base)" stop-opacity="0" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Grid Lines -->
+                        <line x1="50" y1="20" x2="750" y2="20" class="chart-grid-line" />
+                        <line x1="50" y1="50" x2="750" y2="50" class="chart-grid-line" />
+                        <line x1="50" y1="80" x2="750" y2="80" class="chart-grid-line" />
+                        <line x1="50" y1="110" x2="750" y2="110" class="chart-grid-line" />
+                        <line x1="50" y1="140" x2="750" y2="140" class="chart-grid-line" />
+                        <line x1="50" y1="170" x2="750" y2="170" class="chart-grid-line" />
+                        
+                        <!-- Axes or markings -->
+                        <text x="30" y="24" font-size="8" fill="var(--text-muted)" text-anchor="end">6 (Max)</text>
+                        <text x="30" y="174" font-size="8" fill="var(--text-muted)" text-anchor="end">1 (Min)</text>
+                        <!-- Main Area and Line -->
+                        <path d="" id="svgAreaPath" class="chart-fill" />
+                        <path d="" id="svgLinePath" class="chart-main-line" />
+                        <!-- Nodes will be rendered dynamically by JS -->
+                        <g id="svgNodesGroup"></g>
+                    </svg>
+                </div>
+                <!-- Navigation Tabs/Buttons -->
+                <div class="timeline-nav" id="timelineNav">
+                    <!-- Buttons Generated Dynamically -->
+                </div>
+                <!-- Detail Panel -->
+                <div class="glass-panel" id="beat-detail-wrapper">
+                    <!-- Content Generated Dynamically -->
+                </div>
+            </div>
+        </section>
+        <!-- TAB: COLOR -->
+        <section class="content-body" id="tab-content-color">
+            <div class="color-grid-container">
+                <!-- Selector Sidebar -->
+                <div class="color-sidebar">
+                    <div class="glass-panel">
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
+                            Revisión sistemática empírica sobre <strong>42.266 participantes de 64 países</strong> que demuestra la validez transcultural del color en la respuesta afectiva y fisiológica.
+                        </p>
+                        <span style="font-size: 0.75rem; font-style: italic; color: var(--text-muted); display: block;">
+                            Fuente: Jonauskaite & Mohr (Psychonomic Bulletin & Review, 2025).
+                        </span>
+                    </div>
+                    <div class="glass-panel">
+                        <h3 style="font-family:'Montserrat', sans-serif; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 1rem; color:#fff;">Espectro Cromático</h3>
+                        <div class="color-orbs-grid" id="colorGrid">
+                            <!-- Generated Dynamically -->
+                        </div>
+                    </div>
+                </div>
+                <!-- Detail Dashboard -->
+                <div class="glass-panel color-display-panel" id="color-display-panel">
+                    <div class="color-display-header">
+                        <div class="color-swatch-indicator" id="colorIndicator"></div>
+                        <div>
+                            <h2 class="color-name-title" id="colorTitle">Seleccione un Color</h2>
+                            <div class="color-stat-bubble" id="colorStat" style="display:none;"></div>
+                        </div>
+                    </div>
+                    <div class="color-section-grid" id="colorSections" style="display:none;">
+                        <div>
+                            <div class="detail-section-label">Espectro Emocional Asociado</div>
+                            <p id="colorEmotion" style="font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);"></p>
+                        </div>
+                        <div>
+                            <div class="detail-section-label">Respuesta Neurobiológica</div>
+                            <p id="colorNeuro" style="font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);"></p>
+                        </div>
+
+                    </div>
+                    
+                    <div id="color-placeholder" class="detail-placeholder" style="border:none; height:100%;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path><path d="M2 12h20"></path></svg>
+                        <p>Haz clic en cualquiera de los orbes cromáticos para explorar su sustento biométrico y aplicaciones en Realidad Virtual.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Methodology Callout (VR focus) -->
+            <div class="methodology-card">
+                <div class="methodology-icon">
+                    <svg viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+                </div>
+                <div class="methodology-content">
+                    <h4>Inmersión en Realidad Virtual (1:1)</h4>
+                    <p>En Realidad Virtual, las superficies cromáticas ocupan todo el campo visual periférico (FOV). Esto amplifica la <strong>activación del sistema nervioso autónomo</strong> (frecuencia cardíaca, sudoración galvánica) en comparación con imágenes 2D tradicionales, requiriendo un uso preciso de la <strong>neuroarquitectura del color</strong> para el diseño de umbrales emocionales.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- JavaScript Data and Interactive Logic -->
+    <script>
+        /* --- LEVEL DESIGN CATALOG DATA --- */
+        const catalogData = [
+            {
+                id: "env-storytelling",
+                name: "Environmental Storytelling",
+                cat: "implicita", 
+                desc: "El espacio narra de forma indexical mediante la escenificación (puesta en escena) de la materialidad. No es mera decoración, el usuario asume un rol activo para ensamblar pistas visuales y deducir la historia ausente.",
+                fuente: "Don Carson, 'Environmental Storytelling' (2000) · H. Jenkins (2004)",
+                juegos: "BioShock, What Remains of Edith Finch, The Last of Us"
+            },
+            {
+                id: "jenkins-modes",
+                name: "Los 4 modos de Jenkins",
+                cat: "implicita", 
+                desc: "Taxonomía de cómo la arquitectura espacial crea relatos: evocada (hace ecos de historias conocidas), enunciada (revelación progresiva guiando al avatar), embebida (micro-narrativas inscritas en objetos) y emergente (espacios como cajas de arena para el drama).",
+                fuente: "Henry Jenkins, 'Game Design as Narrative Architecture' (2004)",
+                juegos: "Dear Esther, Journey"
+            },
+            {
+                id: "golden-path",
+                name: "Golden Path",
+                cat: "implicita", 
+                desc: "La ruta crítica subyacente o 'columna vertebral'. Representa el recorrido arquitectónico óptimo e invisible en el que recae el esfuerzo de diseño, garantizando que el usuario alcance los ritmos y revelaciones planificados sin coartar su ilusión de libre albedrío.",
+                fuente: "The Level Design Book · Prácticas estándar de diseño",
+                juegos: "The Last of Us, Uncharted"
+            },
+            {
+                id: "beat-chart",
+                name: "Beat Chart",
+                cat: "implicita", 
+                desc: "Una planificación rítmica abstracta concebida antes de la construcción. Es un mapa que alterna picos de estrés, tensión y asombro con valles de descanso (pacing), regulando el ritmo cardiovascular y cognitivo de la experiencia.",
+                fuente: "Christopher Totten, 'An Architectural Approach to Level Design' (2019)",
+                juegos: "Journey, Uncharted",
+                hasBeatChartLink: true
+            },
+            {
+                id: "mimicry-ilinx",
+                name: "Mimicry / Ilinx",
+                cat: "implicita", 
+                desc: "Dos actitudes de juego fundamentales: Mimicry requiere que el espacio convenza al usuario de adoptar un rol y subjetividad específicos. Ilinx utiliza la alteración espacial (desorientación, vértigo, distorsión) como herramienta de impacto dramático y emocional.",
+                fuente: "Roger Caillois, 'Les jeux et les hommes' (1958)",
+                juegos: "The Witcher 3, Control"
+            },
+            {
+                id: "kit-modular",
+                name: "Kit de Piezas Modulares (Asset Kit)",
+                cat: "implicita",
+                desc: "Librería reducida de piezas arquitectónicas, muro, escalera, tramo de pasillo, nodo de unión, diseñada para repetirse y combinarse a lo largo del recorrido en vez de modelar cada tramo como pieza única. El 'core kit' se clona y transforma (escala, rotación, texturas, pequeños detalles) cada cierto número de repeticiones, generando variedad perceptual sin multiplicar el esfuerzo de producción. Su riesgo principal es la 'fatiga de kit': la repetición se vuelve evidente si la variación es insuficiente.",
+                fuente: "Lee Perry, 'Modular Level and Component Design' (2002) · C. Totten, 'Modular Level Design' en An Architectural Approach to Level Design, 2ª ed. (2019) · J. Burgess, GDC 2013",
+                juegos: "Skyrim (ruinas Dwemer), Fallout, Assassins Creed"
+            },
+            {
+                id: "breadcrumbing",
+                name: "Breadcrumbing",
+                cat: "orient", 
+                desc: "El despliegue de micro-estímulos a lo largo del entorno (como migas de pan). A través de elementos repetitivos, como iluminación o variaciones sutiles de suelo, se arrastra la atención del usuario sin la necesidad de señalética no-diegética.",
+                fuente: "K. Kremers, 'Level Design: Concept, Theory & Practice' (2009)",
+                juegos: "God of War, Uncharted"
+            },
+            {
+                id: "leading-lines",
+                name: "Leading Lines",
+                cat: "orient", 
+                desc: "Uso de vectores arquitectónicos (vigas, cornisas, formaciones del terreno o pasillos estrechos) que convergen perceptualmente para dirigir la mirada del jugador instintivamente hacia el próximo nodo o revelación.",
+                fuente: "Principios de composición visual y fotografía",
+                juegos: "Assassins Creed, Cyberpunk 2077"
+            },
+            {
+                id: "sightlines",
+                name: "Sightlines controladas",
+                cat: "orient", 
+                desc: "La administración rigurosa de las líneas de visión en la topografía. Mediante obstrucciones temporales y encuadres, el espacio controla activamente qué se revela, generando drama en el contraste dinámico entre el 'Aquí' y el 'Allí'.",
+                fuente: "Gordon Cullen, 'Townscape' (1961), Concepto de 'Visión Serial'",
+                juegos: "Dark Souls, Shadow of the Colossus"
+            },
+            {
+                id: "materialidad-tiempo",
+                name: "Materialidad como tiempo",
+                cat: "narr", 
+                desc: "El estado físico e imperfecciones de las superficies (desgaste, oxidación, pátina, ruina) operan como una estratigrafía que evidencia el paso del tiempo. Permite que el entorno transmita la historia sin necesidad de textos o diálogos.",
+                fuente: "Michael Nitsche, 'Video Game Spaces' (2008)",
+                juegos: "Fallout, Portal, Elden Ring"
+            },
+            {
+                id: "foreshadowing",
+                name: "Foreshadowing espacial",
+                cat: "narr", 
+                desc: "Mostrar parcialmente al inicio la meta final o el desenlace monumental del recorrido. Funciona sembrando una promesa en el subconsciente que escala emocionalmente hasta que el usuario finalmente la alcanza.",
+                fuente: "C. Totten (2019) · Level Design Patterns",
+                juegos: "Journey (La Montaña), Dark Souls"
+            },
+            {
+                id: "prospect-refuge",
+                name: "Compresión y Expansión",
+                cat: "emoc", 
+                desc: "Manejo biológico del espacio. La alternancia entre recintos estrechos (claustrofobia/seguridad temporal) y áreas vastas (vulnerabilidad/asombro) dicta el ritmo de la respiración del recorrido. Prospect (visión panorámica) vs Refuge (escondite).",
+                fuente: "Jay Appleton, 'The Experience of Landscape' (1975) · Frank Lloyd Wright",
+                juegos: "Tomb Raider, Resident Evil, God of War"
+            },
+            {
+                id: "paleta-cromatica",
+                name: "Paleta cromática",
+                cat: "emoc", 
+                desc: "Las transiciones y codificaciones de color en el nivel comunican subliminalmente el estado en que se encuentra el arco narrativo. Opera como un termómetro emocional directo antes de que se procesen las formas del entorno. En entornos inmersivos de VR, se cruza estrechamente con la neuroarquitectura del color.",
+                fuente: "Teoría del color arquitectónica · C. Totten (2019)",
+                juegos: "Inside, Bioshock",
+                hasSubcatalogLink: true
+            },
+            {
+                id: "espacio-negativo",
+                name: "Espacio negativo",
+                cat: "emoc", 
+                desc: "El uso deliberado de vacío, monotonía temporal o ausencia de sobreestimulación. Su contraste otorga valor e impacto dramático a la arquitectura cargada o a los 'beats' que vienen después. Actúa como el silencio en la partitura arquitectónica.",
+                fuente: "Diseño minimalista · The Level Design Book",
+                juegos: "Limbo, Shadow of the Colossus"
+            },
+            {
+                id: "sonido-silencio",
+                name: "Sonido y silencio",
+                cat: "emoc", 
+                desc: "Diseño de la topografía acústica. La reverberación puede hacer sentir opresivo o inmenso un espacio ciego. Retirar todo sonido tras una sección de estímulos produce una respuesta emocional y de introspección que la pura geometría no logra.",
+                fuente: "Acústica arquitectónica en VR · C. Totten (2019)",
+                juegos: "Inside, The Last of Us, Amnesia"
+            },
+            {
+                id: "verticalidad",
+                name: "Verticalidad",
+                cat: "emoc", 
+                desc: "La jerarquía narrativa del eje Z. Ascender conlleva la sensación de superación, poder, esfuerzo y epifanía, mientras que los descensos hacia las profundidades resuenan con introspección, misterio, encierro o inmersión psicológica.",
+                fuente: "Michael Nitsche (2008) · C. Totten (2019)",
+                juegos: "God of War, Dark Souls"
+            },
+            {
+                id: "iluminacion-emocional",
+                name: "Iluminación emocional",
+                cat: "emoc", 
+                desc: "La distribución de claroscuros, luz difusa y alto contraste altera el comportamiento y la psicología del jugador. Funciona como una guía y define automáticamente si un espacio es un refugio cálido o un dominio amenazante.",
+                fuente: "Iluminación teatral · C. Totten (2019)",
+                juegos: "Alan Wake, Resident Evil"
+            }
+        ];
+        /* --- PLATONIC CAVE BEATS DATA --- */
+        const beatsData = [
+            {
+                id: 1,
+                name: "La prisión y las sombras",
+                sub: "encadenamiento y falsa realidad",
+                intensity: 2,
+                color: "#888780",
+                borderColor: "#5F5E5A",
+                platón: "Los prisioneros no pueden girar la cabeza. Solo ven las sombras que el fuego proyecta en la pared. Creen que esas sombras son la realidad.",
+                significado: "Estado original de ignorancia inconsciente. No hay sufrimiento porque no hay conciencia de la prisión. Es la condición humana por defecto: vivir en una realidad fabricada que se toma por verdadera.",
+                emociones: "Calma · asombro · relajación · aburrimiento · ignorancia · familiaridad ominosa",
+                criterios: ["Refuge forzado", "Compression máxima", "Negative space", "Diegetic design", "Paleta cromática: negro total", "Mimicry: ser el prisionero", "Círculo mágico: entrada"]
+            },
+            {
+                id: 2,
+                name: "La liberación y el ascenso",
+                sub: "el giro forzado y el corredor hacia la salida",
+                intensity: 5,
+                color: "#534AB7",
+                borderColor: "#3C3489",
+                platón: "Si soltaran a uno de ellos y le obligaran a levantarse, volver la cabeza y caminar hacia la luz, le causaría dolor. Si luego le arrastraran por la escarpada subida, sufriría y se irritaría.",
+                significado: "El conocimiento exige esfuerzo. La liberación no se elige, se impone. La transición de la ilusión a la realidad es desorientación antes de ser claridad. El ascenso no es cómodo, es una exigencia.",
+                emociones: "perdido · miedo · peligro · transición · resistencia · incomodidad",
+                criterios: ["Ilinx: vértigo intencional", "Verticality: subir = conocer", "Critical path", "Foreshadowing espacial", "Leading lines ascendentes", "Pacing: acumulación máxima"]
+            },
+            {
+                id: 3,
+                name: "El mundo exterior y el sol",
+                sub: "la revelación y la adaptación",
+                intensity: 6,
+                color: "#EF9F27",
+                borderColor: "#BA7517",
+                platón: "Al llegar a la luz solar, sus ojos quedarían deslumbrados. Primero vería las sombras, luego los reflejos, después los objetos mismos, y por último miraría el sol.",
+                significado: "La verdad plena, en el primer contacto, ciega. Pero el conocimiento verdadero se construye en capas, de lo más indirecto a lo más directo. La adaptación es un proceso activo hacia el gozo intelectual.",
+                emociones: "Abrumación · liberación · colapso de lo familiar · desorientación · asombro ",
+                criterios: ["Compression → Expansion máxima", "Prospect total", "Revelación progresiva", "Agencia calibrada", "Paleta cromática: luz cálida", "Flow: contemplación"]
+            },
+            {
+                id: 4,
+                name: "El descenso de vuelta a la oscuridad",
+                sub: "volver a la caverna",
+                intensity: 3,
+                color: "#AFA9EC",
+                borderColor: "#534AB7",
+                platón: "Si volviera a la caverna y se sentara en su antiguo lugar, sus ojos se llenarían de tinieblas al pasar repentinamente del sol a la oscuridad.",
+                significado: "El conocimiento verdadero produce alienación. Quien conoce la verdad no puede volver a habitar la ilusión como antes. El retorno implica desadaptación al mundo de las sombras.",
+                emociones: "Confusion · expectativa · melancolía · tristeza · nostalgia · soledad del que sabe ",
+                criterios: ["Environmental storytelling: espacio resignificado", "Narrativa embebida", "Escala relacional: cueva pequeña", "Paleta: negro extraño", "Negative space"]
+            },
+            {
+                id: 5,
+                name: "Rechazo y amenaza de muerte",
+                sub: "la alienación del iluminado",
+                intensity: 5,
+                color: "#D85A30",
+                borderColor: "#993C1D",
+                platón: "Los demás prisioneros se reirían de él y dirían que por haber subido ha perdido la vista. Y si intentara desatarlos y conducirlos hacia la luz, lo matarían si pudieran echarle mano.",
+                significado: "La verdad no garantiza la aceptación. El sistema de la ilusión se defiende a sí mismo destruyendo a quien intenta desmantelarlo. Es la amenaza inherente de transformar la realidad.",
+                emociones: "reflexión · peligro · destino · violento · soledad ",
+                criterios: ["Narrativa emergente", "Anti-design", "Chokepoint emocional", "Pico de tensión secundario", "Cierre dramático"]
+            }
+        ];
+        /* --- NEUROARCHITECTURE COLOR DATA --- */
+        const colorData = {
+            rojo: {
+                name: "Rojo",
+                hex: "#ef4444",
+                textColor: "#f87171",
+                stat: "Asociado a la ira en 73% de los estudios, pero también a la pasión.",
+                emotion: "Color de alta intensidad (alta activación). Presenta fuertes vínculos duales: emociones positivas como la pasión, el amor, el poder y la excitación; y emociones negativas como la ira, el peligro y la hostilidad.",
+                neuro: "Favorece el estado de alerta fisiológica y aumenta la frecuencia cardíaca de forma transitoria. Incrementa la concentración a corto plazo durante tareas que requieren alta atención a los detalles.",
+                app: "En Realidad Virtual, el rojo se utiliza para inducir urgencia o peligro inmediato, o enmarcar mecánicas de combate/estrés. En la arquitectura física de los espacios narrativos, es idóneo para marcar umbrales de gran importancia dramática, pero su volumen debe ser restringido para evitar la fatiga mental."
+            },
+            amarillo: {
+                name: "Amarillo",
+                hex: "#eab308",
+                textColor: "#fef08a",
+                stat: ">90% de asociación con alegría y entusiasmo.",
+                emotion: "Color cálido de alta activación. Sistemáticamente vinculado a la felicidad, la esperanza, la alegría, la diversión y el entusiasmo.",
+                neuro: "Contribuye a la mejora del estado de ánimo y aumenta la motivación extrínseca, favoreciendo el esfuerzo sostenido en contextos cognitivos y de aprendizaje.",
+                app: "En el diseño de niveles (diseño de videojuegos), actúa como un atractor visual innato (faro o 'breadcrumbs') para marcar elementos escalables, manijas o caminos transitables. En VR, proporciona un ancla espacial positiva que calma la ansiedad provocada por entornos de misterio o laberínticos."
+            },
+            naranja: {
+                name: "Naranja",
+                hex: "#f97316",
+                textColor: "#ffedd5",
+                stat: "Asociación clave: Diversión y entretenimiento.",
+                emotion: "Color cálido de alta activación. Desencadena de forma constante emociones positivas, estimulantes y animadas como la diversión y la emoción activa.",
+                neuro: "Eleva los niveles de energía y promueve la sociabilidad activa. Estimula la respuesta motora y la extroversión sensorial sin llegar al estrés crítico del color rojo.",
+                app: "Ideal para espacios sociales interactivos o mecánicas de juego lúdicas. En neuroarquitectura aplicable a entornos virtuales, se usa para dinamizar áreas de reposo secundarias o marcar mecánicas de interacción cooperativa."
+            },
+            verde: {
+                name: "Verde",
+                hex: "#22c55e",
+                textColor: "#bbf7d0",
+                stat: "Alta consistencia global en relajación y seguridad.",
+                emotion: "Tono frío de baja activación. Evoca sensaciones estables y universales de relajación, tranquilidad, satisfacción y seguridad.",
+                neuro: "Reduce la actividad simpática (baja la presión sanguínea y fatiga visual). Está neurobiológicamente comprobado que promueve una concentración tranquila y facilita la flexibilidad cognitiva y la creatividad.",
+                app: "El estándar absoluto para zonas seguras ('Safe Rooms') en diseño UX e interactivo. En narrativa en VR, los tonos verdes de baja saturación sirven como transiciones neutrales para desestresar al usuario tras picos rítmicos muy intensos (ej. tras el ascenso o la liberación)."
+            },
+            azul: {
+                name: "Azul",
+                hex: "#3b82f6",
+                textColor: "#bfdbfe",
+                stat: "Calmante en 47.5%, pero asociado a tristeza en >50%.",
+                emotion: "Tono frío de baja activación. Ligeramente ambivalente: genera profundas sensaciones de relajación y estabilidad mental, pero en tonos oscuros o apagados se asocia directamente a la melancolía y la soledad.",
+                neuro: "Fomenta la concentración profunda, estabiliza el ritmo respiratorio y estimula la resolución creativa de problemas y la memoria de trabajo.",
+                app: "En el diseño espacial de la cueva, los tonos azules ayudan a establecer una atmósfera de introspección. Sirven en el diseño inmersivo para inducir estados de flujo (flow) o concentraciones táctiles donde el usuario interactúa con rompecabezas detallados."
+            },
+            turquesa: {
+                name: "Turquesa",
+                hex: "#06b6d4",
+                textColor: "#cffafe",
+                stat: "Asociación directa a satisfacción y tranquilidad.",
+                emotion: "Variante fría que combina la estabilidad segura del verde con la profundidad del azul. Evoca una profunda relajación y sensación de claridad perceptiva.",
+                neuro: "Induce estados de bienestar con muy baja activación nerviosa periférica. Facilita la homeostasis y recuperación después de episodios de estrés físico.",
+                app: "Muy utilizado en entornos virtuales terapéuticos o de relajación interactiva. En UI/UX espacial indica restauración de energía, curación o recargas de salud y escudos protectores."
+            },
+            rosa: {
+                name: "Rosa",
+                hex: "#ec4899",
+                textColor: "#fbcfe8",
+                stat: "Asociado al amor y afecto en ~70% de estudios.",
+                emotion: "Color de polaridad claramente positiva. Vinculado de manera universal al amor, la alegría, el consuelo, el afecto y la calidez.",
+                neuro: "Tiene un efecto comprobado de pacificación emocional y atenuación de la hostilidad o la ira. Calma la hiperactividad neuronal inducida por sobreestimulación visual.",
+                app: "Aplicado en zonas de contención o 'chill-out' del recorrido narrativo. Es una excelente herramienta para atenuar de forma sutil la incomodidad psicológica del usuario durante transiciones de confinamiento o chokepoints."
+            },
+            morado: {
+                name: "Morado",
+                hex: "#a855f7",
+                textColor: "#e9d5ff",
+                stat: "Perfil complejo: Empoderamiento y dignidad.",
+                emotion: "Perfil emocional muy complejo y ambivalente. Asociado al empoderamiento, orgullo y la mística creativa, pero transculturalmente también se vincula al miedo o al luto.",
+                neuro: "Activa procesos cognitivos superiores vinculados al pensamiento abstracto y la fantasía creativa. Genera un estado cognitivo propicio para la resolución de metáforas.",
+                app: "Adecuado para enmarcar elementos narrativos sobrenaturales, magias de alta complejidad o tecnologías alienígenas en VR. A nivel arquitectónico, modula la atención hacia áreas de epifanía o revelación mística."
+            },
+            blanco: {
+                name: "Blanco",
+                hex: "#f8fafc",
+                textColor: "#ffffff",
+                stat: "Consistencia positiva transcultural (Europa/Asia).",
+                emotion: "Polaridad emocional positiva. Símbolo transcultural de pureza, calma, seguridad, orden, limpieza y máxima claridad mental.",
+                neuro: "Minimiza la carga cognitiva periférica al reducir la sobrecarga de información visual. Regula la activación emocional actuando como un neutralizador sensorial.",
+                app: "Esencial como 'espacio negativo' tridimensional. En VR, el blanco saturado (sobreexposición) se utiliza para el efecto de transición del umbral (ceguera o epifanía del Sol), y en tonos mate sirve para el descanso perceptivo y resetear la vista del observador."
+            },
+            gris: {
+                name: "Gris",
+                hex: "#64748b",
+                textColor: "#e2e8f0",
+                stat: "Asociado a tristeza/apatía en >60% de estudios.",
+                emotion: "Estado negativo de baja activación. Se vincula fuertemente con el aburrimiento, la fatiga mental, la desgana y la neutralidad apática.",
+                neuro: "Provoca desensibilización espacial. Disminuye el metabolismo afectivo y el engagement con el entorno de manera rápida.",
+                app: "En UI/UX se utiliza para denotar elementos inactivos o bloqueados. En la caverna narrativa, el gris representa el confinamiento inicial sin angustia consciente: la apatía existencial del prisionero que toma las sombras por realidades."
+            },
+            marron: {
+                name: "Marrón",
+                hex: "#78350f",
+                textColor: "#fcd34d",
+                stat: "Asociación consistente al disgusto y pesimismo.",
+                emotion: "Estado negativo de baja activación. Evoca disgusto, incomodidad, aspereza y pesadez terrenal.",
+                neuro: "Genera una sensación de anclaje material que, si no está suavizado por texturas orgánicas agradables, provoca rechazo biológico e incomodidad espacial.",
+                app: "Ideal para escenificar ruinas, zonas de lodo, suciedad o entornos hostiles sin vida en videojuegos. En VR, es útil para forzar la incomodidad táctil y la urgencia de salir de recintos específicos (por ejemplo, el Beat del Ascenso o las zonas profundas)."
+            },
+            negro: {
+                name: "Negro",
+                hex: "#111111",
+                textColor: "#94a3b8",
+                stat: "Asociado frecuentemente al miedo, ira y duelo.",
+                emotion: "Polaridad oscura y de máxima absorción. Se vincula íntimamente al miedo al vacío, la hostilidad, el misterio indescifrable y el duelo reflexivo.",
+                neuro: "Eleva los niveles de cautela e hipervigilancia al disminuir la lectura visual del entorno. Aumenta la sensación de confinamiento y peso gravitatorio.",
+                app: "Herramienta fundamental para el contraste lumínico en Realidad Virtual. Actúa como la 'niebla de guerra' o la zona ciega del usuario. En la Caverna, es el color de fondo absoluto que representa la ignorancia original donde solo resalta la pared iluminada por el fuego."
+            }
+        };
+        /* --- STATE MANAGEMENT --- */
+        let currentTab = 'inicio';
+        let selectedCatalogItem = null;
+        let selectedBeatIndex = 0;
+        let currentFilter = 'all';
+        let searchQuery = '';
+        /* TAB NAVIGATION */
+        const tabTitles = {
+            inicio: { title: "Portal al Espacio Como Relato", subtitle: "Un catálogo de estrategias para guiar, emocionar y narrar una historia." },
+            catalogo: { title: "Catálogo de estrategias de diseño de videojuegos", subtitle: "17 criterios para la composición de un recorrido en realidad virtual." },
+            'beat-chart': { title: "Beat Chart: Caverna de Platón", subtitle: "Análisis del ritmo emocional e intensidad dramática aplicados a las fases de la alegoría." },
+            color: { title: "Neuroarquitectura del Color", subtitle: "Estudio empírico de la respuesta biométrica y psicológica del color en Realidad Virtual." }
+        };
+        function switchTab(tabId) {
+            // Update Active Nav Link
+            document.querySelectorAll('.nav-menu .nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const activeNavItem = document.getElementById(`nav-${tabId}`);
+            if (activeNavItem) activeNavItem.classList.add('active');
+            // Switch Active Tab Container
+            document.querySelectorAll('.content-body').forEach(container => {
+                container.classList.remove('active');
+            });
+            const activeTabContent = document.getElementById(`tab-content-${tabId}`);
+            if (activeTabContent) activeTabContent.classList.add('active');
+            // Update Tab Headers text
+            const tabInfo = tabTitles[tabId];
+            document.getElementById('current-tab-title').textContent = tabInfo.title;
+            document.getElementById('current-tab-subtitle').textContent = tabInfo.subtitle;
+            currentTab = tabId;
+            // Reset or trigger specific tab rendering if needed
+            if (tabId === 'beat-chart') {
+                setTimeout(renderBeatSvg, 100); // Small delay to let container width stabilize for responsive SVG coordinates
+            }
+            // Close Mobile menu
+            document.getElementById('appSidebar').classList.remove('mobile-open');
+            // Update URL hash without causing scroll jump
+            history.pushState(null, null, `#${tabId}`);
+            // Update ambient lighting default state based on tab
+            updateDefaultAmbientLight();
+        }
+        function toggleMobileSidebar() {
+            document.getElementById('appSidebar').classList.toggle('mobile-open');
+        }
+        function updateDefaultAmbientLight() {
+            const ambient = document.getElementById('ambientLight');
+            if (currentTab === 'color') {
+                // If in color tab, use the selected color's hex or fallback to base
+                const activeColorBtn = document.querySelector('.color-orb-btn.active');
+                if (activeColorBtn) {
+                    const colorKey = activeColorBtn.getAttribute('data-key');
+                    const colorHex = colorData[colorKey].hex;
+                    ambient.style.background = `radial-gradient(circle, ${colorHex}15 0%, rgba(9, 13, 22, 0) 70%)`;
+                    return;
+                }
+            } else if (currentTab === 'beat-chart') {
+                const activeBeat = beatsData[selectedBeatIndex];
+                ambient.style.background = `radial-gradient(circle, ${activeBeat.color}15 0%, rgba(9, 13, 22, 0) 70%)`;
+                return;
+            }
+            // Standard fallback glow (deep cyan/blue accent)
+            ambient.style.background = `radial-gradient(circle, rgba(56, 189, 248, 0.04) 0%, rgba(9, 13, 22, 0) 70%)`;
+        }
+        /* --- CATALOG LOGIC --- */
+        function getCategoryLabel(cat) {
+            const labels = { implicita: 'Implícita', orient: 'Orientación', narr: 'Narrativa', emoc: 'Emoción' };
+            return labels[cat] || cat;
+        }
+        function filterCatalog(category, button) {
+            // Manage Active button state
+            document.querySelectorAll('.filter-buttons .filter-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            currentFilter = category;
+            renderCatalogTable();
+        }
+        function handleSearch() {
+            searchQuery = document.getElementById('catalog-search').value.toLowerCase();
+            renderCatalogTable();
+        }
+        function countCategories() {
+            const counts = { all: catalogData.length, implicita: 0, orient: 0, narr: 0, emoc: 0 };
+            catalogData.forEach(item => {
+                if (counts[item.cat] !== undefined) counts[item.cat]++;
+            });
+            
+            document.getElementById('count-all').textContent = counts.all;
+            document.getElementById('count-implicita').textContent = counts.implicita;
+            document.getElementById('count-orient').textContent = counts.orient;
+            document.getElementById('count-narr').textContent = counts.narr;
+            document.getElementById('count-emoc').textContent = counts.emoc;
+        }
+        function renderCatalogTable() {
+            const tbody = document.getElementById('catalog-table-body');
+            tbody.innerHTML = '';
+            const filteredData = catalogData.filter(item => {
+                const matchesCategory = (currentFilter === 'all' || item.cat === currentFilter);
+                const matchesSearch = (
+                    item.name.toLowerCase().includes(searchQuery) ||
+                    item.desc.toLowerCase().includes(searchQuery) ||
+                    item.fuente.toLowerCase().includes(searchQuery) ||
+                    item.juegos.toLowerCase().includes(searchQuery)
+                );
+                return matchesCategory && matchesSearch;
+            });
+            filteredData.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.id = `row-${item.id}`;
+                if (selectedCatalogItem && selectedCatalogItem.id === item.id) {
+                    tr.className = 'selected';
+                }
+                // Render game pills
+                const gamePills = item.juegos.split(',').map(g => `<span class="game-pill">${g.trim()}</span>`).join(' ');
+                tr.innerHTML = `
+                    <td style="font-weight: 600; color: #fff;">${item.name}</td>
+                    <td><span class="cat-badge ${item.cat}">${getCategoryLabel(item.cat)}</span></td>
+                    <td style="font-size:0.8rem; color:var(--text-muted);">${item.fuente}</td>
+                    <td>${gamePills}</td>
+                `;
+                tr.onclick = () => selectCatalogItem(item);
+                tbody.appendChild(tr);
+            });
+        }
+        function selectCatalogItem(item) {
+            selectedCatalogItem = item;
+            
+            // Mark selected row visually
+            document.querySelectorAll('.catalog-table tr').forEach(row => row.classList.remove('selected'));
+            const selectedRow = document.getElementById(`row-${item.id}`);
+            if (selectedRow) selectedRow.classList.add('selected');
+            // Hide placeholder and show content in sticky drawer
+            document.getElementById('catalog-placeholder').style.display = 'none';
+            const detailContent = document.getElementById('catalog-detail-content');
+            detailContent.style.display = 'block';
+            const gamePills = item.juegos.split(',').map(g => `<span class="game-pill" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; background: rgba(255,255,255,0.05);">${g.trim()}</span>`).join(' ');
+            detailContent.innerHTML = `
+                <div class="detail-header">
+                    <span class="cat-badge ${item.cat}" style="margin-bottom:0.5rem;">${getCategoryLabel(item.cat)}</span>
+                    <h3>${item.name}</h3>
+                </div>
+                
+                <div class="detail-section">
+                    <div class="detail-section-label">¿En qué consiste?</div>
+                    <p>${item.desc}</p>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-section-label">Sustento Teórico / Autor</div>
+                    <p style="font-weight: 500; color: #fff;">${item.fuente}</p>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-section-label">Juegos y Ejemplos de Referencia</div>
+                    <div class="tag-row" style="margin-top:0.4rem;">${gamePills}</div>
+                </div>
+                ${item.hasSubcatalogLink ? `
+                    <button class="detail-footer-btn" onclick="openNeuroColorSubcatalog()">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" style="stroke: #000;"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        Explorar Neuroarquitectura del Color
+                    </button>
+                ` : ''}
+                ${item.hasBeatChartLink ? `
+                    <button class="detail-footer-btn" onclick="openBeatChartSubcatalog()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" style="stroke: #000;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                        Explorar Beat Chart de Platón
+                    </button>
+                ` : ''}
+            `;
+        }
+        function openNeuroColorSubcatalog() {
+            // Switch to color tab
+            switchTab('color');
+            // Auto select "Rojo" or keep placeholder. Let's auto-select "rojo" to make it highly interactive!
+            const firstColorBtn = document.querySelector('.color-orb-btn');
+            if (firstColorBtn) firstColorBtn.click();
+        }
+        function openBeatChartSubcatalog() {
+            switchTab('beat-chart');
+            selectBeat(0);
+        }
+        /* --- BEAT CHART LOGIC --- */
+        function renderBeatSvg() {
+            const svg = document.getElementById('beatSvg');
+            const nodesGroup = document.getElementById('svgNodesGroup');
+            const width = svg.clientWidth || 740;
+            const height = 180;
+            const paddingLeft = 60;
+            const paddingRight = 60;
+            const chartHeight = 150;
+            const yOffset = 20;
+            const segmentWidth = (width - paddingLeft - paddingRight) / (beatsData.length - 1);
+            
+            // Calculate coordinates (Intensity scale 1 to 6 mapped to Y values)
+            // Intensity 6 is at y = yOffset (20)
+            // Intensity 1 is at y = yOffset + chartHeight (170)
+            const getCoordinates = (index) => {
+                const beat = beatsData[index];
+                const x = paddingLeft + (index * segmentWidth);
+                // Linear scaling: Y = MaxY - ((Intensity - 1) / (MaxIntensity - 1)) * ChartHeight
+                const y = (yOffset + chartHeight) - ((beat.intensity - 1) / 5) * chartHeight;
+                return { x, y };
+            };
+            // Generate Path String for line
+            let linePathD = "";
+            let areaPathD = `M ${getCoordinates(0).x} ${yOffset + chartHeight} `;
+            beatsData.forEach((beat, idx) => {
+                const { x, y } = getCoordinates(idx);
+                if (idx === 0) {
+                    linePathD += `M ${x} ${y} `;
+                } else {
+                    // Curved transitions (Bezier interpolation)
+                    const prev = getCoordinates(idx - 1);
+                    const cpX1 = prev.x + (x - prev.x) / 2;
+                    const cpY1 = prev.y;
+                    const cpX2 = prev.x + (x - prev.x) / 2;
+                    const cpY2 = y;
+                    linePathD += `C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${x} ${y} `;
+                }
+                
+                // For filled area
+                if (idx > 0) {
+                    const prev = getCoordinates(idx - 1);
+                    const cpX1 = prev.x + (x - prev.x) / 2;
+                    const cpY1 = prev.y;
+                    const cpX2 = prev.x + (x - prev.x) / 2;
+                    const cpY2 = y;
+                    areaPathD += `C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${x} ${y} `;
+                }
+            });
+            areaPathD += `L ${getCoordinates(beatsData.length - 1).x} ${yOffset + chartHeight} Z`;
+            document.getElementById('svgLinePath').setAttribute('d', linePathD);
+            document.getElementById('svgAreaPath').setAttribute('d', areaPathD);
+            // Render Nodes
+            nodesGroup.innerHTML = '';
+            beatsData.forEach((beat, idx) => {
+                const { x, y } = getCoordinates(idx);
+                const isActive = idx === selectedBeatIndex;
+                const nodeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                nodeGroup.setAttribute('class', `chart-node ${isActive ? 'active' : ''}`);
+                nodeGroup.setAttribute('style', `--node-color: ${beat.color}`);
+                nodeGroup.onclick = () => selectBeat(idx);
+                nodeGroup.innerHTML = `
+                    <circle class="outer" cx="${x}" cy="${y}" r="${isActive ? 12 : 9}"></circle>
+                    <circle class="inner" cx="${x}" cy="${y}" r="${isActive ? 7 : 5}"></circle>
+                    <text class="chart-node-label" x="${x}" y="${y - 16}">Beat ${beat.id}</text>
+                    <text class="chart-node-label" x="${x}" y="${yOffset + chartHeight + 16}" style="fill:#fff; font-size: 8px; opacity: 0.85;">${beat.name.substring(0, 12)}...</text>
+                `;
+                nodesGroup.appendChild(nodeGroup);
+            });
+        }
+        function renderTimelineNav() {
+            const nav = document.getElementById('timelineNav');
+            nav.innerHTML = '';
+            beatsData.forEach((beat, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `timeline-btn ${idx === selectedBeatIndex ? 'active' : ''}`;
+                btn.setAttribute('style', `--node-color: ${beat.borderColor}; --node-bg: ${beat.color}15`);
+                btn.onclick = () => selectBeat(idx);
+                btn.innerHTML = `
+                    <span class="timeline-btn-num" style="background:${beat.borderColor}30; color:${beat.borderColor}">${beat.id}</span>
+                    <span>${beat.name}</span>
+                `;
+                nav.appendChild(btn);
+            });
+        }
+        function selectBeat(index) {
+            selectedBeatIndex = index;
+            renderTimelineNav();
+            renderBeatSvg();
+            const beat = beatsData[index];
+            const detailWrapper = document.getElementById('beat-detail-wrapper');
+            
+            // Apply variables for customized theme based on the beat's color
+            detailWrapper.setAttribute('style', `--beat-border: ${beat.borderColor};`);
+            
+            detailWrapper.innerHTML = `
+                <div class="beat-detail-card">
+                    <div class="beat-info-left">
+                        <div class="intensity-pill" style="--beat-border: ${beat.borderColor}">
+                            <span>Intensidad: <strong>${beat.intensity}/6</strong></span>
+                            <span class="bar"><span class="bar-fill" style="width: ${Math.round(beat.intensity/6*100)}%;"></span></span>
+                        </div>
+                        
+                        <div class="beat-title-area">
+                            <h3>Beat ${beat.id}: ${beat.name}</h3>
+                            <p>${beat.sub}</p>
+                        </div>
+                        <div class="beat-quote-box">
+                            "${beat.platón}"
+                            <div style="font-size: 0.75rem; text-align: right; margin-top: 0.5rem; color: var(--text-muted); font-weight:600;">, La caverna, Libro VII, Platón</div>
+                        </div>
+                        <div>
+                            <div class="detail-section-label">Significado Filosófico</div>
+                            <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.6;">${beat.significado}</p>
+                        </div>
+                    </div>
+                    <div class="beat-info-right">
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); border-radius: var(--border-radius-md); padding: 1.25rem;">
+                            <div class="detail-section-label">Emociones Inducidas</div>
+                            <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.6;">${beat.emociones}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            // Adjust Ambient Light background
+            updateDefaultAmbientLight();
+        }
+        /* --- NEUROARCHITECTURE COLOR LOGIC --- */
+        function initColors() {
+            const grid = document.getElementById('colorGrid');
+            grid.innerHTML = '';
+            Object.keys(colorData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = 'color-orb-btn';
+                btn.style.setProperty('--orb-color', colorData[key].hex);
+                btn.setAttribute('data-name', colorData[key].name);
+                btn.setAttribute('data-key', key);
+                
+                if (key === 'negro') {
+                    btn.style.border = '2px solid rgba(255,255,255,0.3)';
+                }
+                
+                btn.onclick = () => selectColor(key, btn);
+                grid.appendChild(btn);
+            });
+        }
+        function selectColor(key, btnElement) {
+            // Update active state in CSS
+            document.querySelectorAll('.color-orb-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            const data = colorData[key];
+            // Hide placeholder and show panels
+            document.getElementById('color-placeholder').style.display = 'none';
+            document.getElementById('colorSections').style.display = 'grid';
+            // Update Panel Elements
+            const panel = document.getElementById('color-display-panel');
+            panel.setAttribute('style', `--selected-color-hex: ${data.hex}`);
+            document.getElementById('colorTitle').textContent = data.name;
+            document.getElementById('colorTitle').style.color = data.textColor;
+            document.getElementById('colorIndicator').style.background = data.hex;
+            document.getElementById('colorIndicator').style.boxShadow = `0 0 25px ${data.hex}`;
+            const stat = document.getElementById('colorStat');
+            stat.style.display = 'inline-block';
+            stat.textContent = data.stat;
+            document.getElementById('colorEmotion').textContent = data.emotion;
+            document.getElementById('colorNeuro').textContent = data.neuro;
+
+            // Trigger Ambient Light Transition
+            const ambient = document.getElementById('ambientLight');
+            ambient.style.background = `radial-gradient(circle, ${data.hex}15 0%, rgba(9, 13, 22, 0) 70%)`;
+        }
+        /* --- INITIALIZATION --- */
+        window.addEventListener('DOMContentLoaded', () => {
+            // 1. Initial renders
+            countCategories();
+            renderCatalogTable();
+            renderTimelineNav();
+            initColors();
+            // 2. Hash routing management
+            const initialHash = window.location.hash.substring(1);
+            if (['inicio', 'catalogo', 'beat-chart', 'color'].includes(initialHash)) {
+                switchTab(initialHash);
+            } else {
+                switchTab('inicio');
+            }
+            // 3. Select first items by default (for previewing details)
+            if (catalogData.length > 0) {
+                // Find "paleta-cromatica" by default or first item
+                const paletaItem = catalogData.find(item => item.id === 'paleta-cromatica') || catalogData[0];
+                selectCatalogItem(paletaItem);
+            }
+            selectBeat(0);
+            // Resize listener for SVG recalculations
+            window.addEventListener('resize', () => {
+                if (currentTab === 'beat-chart') {
+                    renderBeatSvg();
+                }
+            });
+        });
+
+        /* --- CAROUSEL LOGIC --- */
+        let slideIndex = 1;
+        
+        function moveSlide(n) {
+            showSlides(slideIndex += n);
+        }
+        
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+        
+        function showSlides(n) {
+            let i;
+            let slides = document.querySelectorAll(".hero-carousel .carousel-slide");
+            let dots = document.querySelectorAll(".hero-carousel .dot");
+            if (!slides.length) return;
+            if (n > slides.length) {slideIndex = 1}    
+            if (n < 1) {slideIndex = slides.length}
+            for (i = 0; i < slides.length; i++) {
+                slides[i].classList.remove("active");  
+            }
+            for (i = 0; i < dots.length; i++) {
+                dots[i].classList.remove("active");
+            }
+            slides[slideIndex-1].classList.add("active");  
+            dots[slideIndex-1].classList.add("active");
+        }
+    </script>
+</body>
+</html>
